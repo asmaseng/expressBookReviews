@@ -1,5 +1,6 @@
 
 const express = require('express');
+const axios = require('axios');
 let books = require('./booksdb.js');
 let isValid = require('./auth_users.js').isValid;
 let users = require('./auth_users.js').users;
@@ -53,6 +54,53 @@ public_users.get('/title/:title', (req, res) => {
     );
 
     return res.status(200).json(result);
+});
+
+
+public_users.get('/asyncbooks', async (req, res) => {
+    try {
+        const response = await axios.get('http://localhost:5000/');
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(500).json({ message: 'Error retrieving books' });
+    }
+});
+
+
+public_users.get('/asyncisbn/:isbn', async (req, res) => {
+    try {
+        const response = await axios.get(
+            `http://localhost:5000/isbn/${encodeURIComponent(req.params.isbn)}`
+        );
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(error.response?.status || 500).json({
+            message: error.response?.data?.message || 'Error retrieving book'
+        });
+    }
+});
+
+
+public_users.get('/asyncauthor/:author', async (req, res) => {
+    try {
+        const response = await axios.get(
+            `http://localhost:5000/author/${encodeURIComponent(req.params.author)}`
+        );
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(500).json({ message: 'Error retrieving books by author' });
+    }
+});
+
+public_users.get('/asynctitle/:title', async (req, res) => {
+    try {
+        const response = await axios.get(
+            `http://localhost:5000/title/${encodeURIComponent(req.params.title)}`
+        );
+        return res.status(200).json(response.data);
+    } catch (error) {
+        return res.status(500).json({ message: 'Error retrieving books by title' });
+    }
 });
 
 public_users.get('/review/:isbn', (req, res) => {
